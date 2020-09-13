@@ -120,7 +120,7 @@ class AuditLog
         $this->data = array_merge(
             $this->data,
             [
-                'action_model_class' => get_class($this->performerModel) ?? null,
+                'action_model_class' => $this->performerModel ?  get_class($this->performerModel) : null,
                 'action_model_id' => $this->performerModelId ?? null,
                 'timestamp' => ($this->timestamp ?? date('Y-m-d H:i:s')),
                 'action_type' => $this->modelActionType,
