@@ -1,0 +1,26 @@
+{
+    "name": "hsnbd/auditlog",
+    "description": "Elasticsearch auditlog for laravel application.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Baker Hasan",
+            "email": "hasanbd666@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "AuditLogger\\": "/src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AuditLogger\\AuditLoggerServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev"
+}
