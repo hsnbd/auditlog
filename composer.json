@@ -9,16 +9,18 @@
             "email": "hasanbd666@gmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "elasticsearch/elasticsearch": "~7.0"
+    },
     "autoload": {
         "psr-4": {
-            "AuditLogger\\": "/src"
+            "Hsnbd\\AuditLogger\\": "/src"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "AuditLogger\\AuditLoggerServiceProvider"
+                "Hsnbd\\AuditLogger\\AuditLoggerServiceProvider"
             ]
         }
     },

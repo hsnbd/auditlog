@@ -1,6 +1,6 @@
 <?php
 
-namespace AuditLogger\Listeners;
+namespace Hsnbd\AuditLogger\Listeners;
 
 use Elasticsearch\ClientBuilder;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -40,7 +40,6 @@ class ESMessagePush implements ShouldQueue
             ];
 
             $response = $client->index($params);
-//        Log::debug($response);
         } catch (\Throwable $exception) {
             Log::debug($exception->getMessage());
         }

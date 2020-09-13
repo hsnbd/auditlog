@@ -1,12 +1,12 @@
 <?php
-namespace AuditLogger;
+namespace Hsnbd\AuditLogger;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends Serviceprovider {
     protected $listen = [
-        \AuditLogger\Events\ESMessagePushed::class => [
-            \AuditLogger\Listeners\ESMessagePush::class
+        \Hsnbd\AuditLogger\Events\ESMessagePushed::class => [
+            \Hsnbd\AuditLogger\Listeners\ESMessagePush::class
         ],
     ];
 

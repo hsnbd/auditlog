@@ -1,8 +1,8 @@
 <?php
 
-namespace AuditLogger\Events;
+namespace Hsnbd\AuditLogger\Events;
 
-use AuditLogger\AuditLog;
+use Hsnbd\AuditLogger\AuditLog;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
