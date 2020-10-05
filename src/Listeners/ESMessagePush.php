@@ -26,32 +26,26 @@ class ESMessagePush implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
      * @return void
      */
     public function handle($event)
     {
         try {
-            $hosts = [
-                [
-                    'host' => '180.148.214.184',
-                    'port' => 9200,
-                    'scheme' => 'http'
-                ]
-            ];
-
-            $singleHandler  = ClientBuilder::singleHandler();
+            $singleHandler = ClientBuilder::singleHandler();
 
             $client = ClientBuilder::create()
                 ->setHandler($singleHandler)
-                ->setHosts($hosts)
+                ->setHosts(config('audit-logger.elastic-search.hosts'))
                 ->build();
 
             $params = [
                 'index' => 'my_index',
-//                'pipeline' => 'application_audit_pipeline',
-                'body'  => $event->logger->data
+                'body' => $event->logger->data
             ];
+            if (config('audit-logger.es.app-audit-pipeline')) {
+                $params['pipeline'] = config('audit-logger.es.app-audit-pipeline');
+            }
 
             $response = $client->index($params);
         } catch (\Throwable $exception) {
