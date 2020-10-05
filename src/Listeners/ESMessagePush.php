@@ -36,9 +36,7 @@ class ESMessagePush implements ShouldQueue
                 [
                     'host' => '180.148.214.184',
                     'port' => 9200,
-                    'scheme' => 'http',
-//                    'user' => 'username',
-//                    'pass' => 'password'
+                    'scheme' => 'http'
                 ]
             ];
 
@@ -48,7 +46,6 @@ class ESMessagePush implements ShouldQueue
                 ->setHandler($singleHandler)
                 ->setHosts($hosts)
                 ->build();
-            Log::debug($client);
 
             $params = [
                 'index' => 'my_index',
