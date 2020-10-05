@@ -49,7 +49,7 @@ class ESMessagePush implements ShouldQueue
 
             $params = [
                 'index' => 'my_index',
-                'pipeline' => 'application_audit_pipeline',
+//                'pipeline' => 'application_audit_pipeline',
                 'body'  => $event->logger->data
             ];
 
