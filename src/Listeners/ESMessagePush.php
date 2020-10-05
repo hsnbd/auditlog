@@ -32,7 +32,24 @@ class ESMessagePush implements ShouldQueue
     public function handle($event)
     {
         try {
-            $client = ClientBuilder::create()->build();
+            $hosts = [
+                [
+                    'host' => '180.148.214.184',
+                    'port' => 9200,
+                    'scheme' => 'http',
+//                    'user' => 'username',
+//                    'pass' => 'password'
+                ]
+            ];
+
+            $singleHandler  = ClientBuilder::singleHandler();
+
+            $client = ClientBuilder::create()
+                ->setHandler($singleHandler)
+                ->setHosts($hosts)
+                ->build();
+            Log::debug($client);
+
             $params = [
                 'index' => 'my_index',
                 'pipeline' => 'application_audit_pipeline',
@@ -42,6 +59,7 @@ class ESMessagePush implements ShouldQueue
             $response = $client->index($params);
         } catch (\Throwable $exception) {
             Log::debug($exception->getMessage());
+            Log::debug($exception->getTraceAsString());
         }
     }
 }

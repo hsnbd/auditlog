@@ -28,16 +28,22 @@ class AuditLog
 
     }
 
-    public function info(?string $message, array $data = []): ?string
+    public function setMessage(?string $message)
     {
         $this->message = $message;
+        return $this;
+    }
+
+    public function info(?string $message, array $data = []): ?string
+    {
+        $this->setMessage($message);
         $this->pushMessage(__FUNCTION__, $data);
         return $this->message;
     }
 
     public function debug(?string $message, array $data = []): ?string
     {
-        $this->message = $message;
+        $this->setMessage($message);
         $this->pushMessage(__FUNCTION__, $data);
         return $this->message;
     }
@@ -100,7 +106,7 @@ class AuditLog
         }
 
         if (empty($this->message)) {
-            $this->message = (class_basename($this->performerModel) ?? 'A Model') . ' has been '. $this->modelActionType .' at '. ($this->timestamp ?? date('Y-m-d H:i:s'));
+            $this->setMessage((class_basename($this->performerModel) ?? 'A Model') . ' has been '. $this->modelActionType .' at '. ($this->timestamp ?? date('Y-m-d H:i:s')));
         }
 
         $this->performerModelId = $this->performerModel ? ($this->performerModel->getAttribute('id') ?? $this->performerModel->id) : null;

@@ -17,6 +17,7 @@ class AuditLoggerServiceProvider extends ServiceProvider
         $this->app->bind('audit-logger', function($app) {
             return new AuditLog();
         });
+        
         $this->mergeConfigFrom(__DIR__.'/config/config.php', 'audit-logger');
         $this->app->register(EventServiceProvider::class);
         $this->loadHelpers();
