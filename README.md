@@ -7,9 +7,15 @@ Installation step
             "type": "vcs",
             "url": "https://gitlab.com/softbdltd/auditlog.git"
         }
-    ]
+    ],
+"require": {
+  "hsnbd/auditlog": "@dev"
+}
 ```
-- run composer command `composer require hsnbd/auditlog`
+```
+if you want to fetch dev-master and dev-updated. then add "hsnbd/auditlog": "*",
+```
+- run composer command `composer install`
 
 ```php artisan queue:table```
 

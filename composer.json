@@ -1,28 +1,38 @@
 {
-    "name": "hsnbd/auditlog",
-    "description": "Elasticsearch auditlog for laravel application.",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Baker Hasan",
-            "email": "hasanbd666@gmail.com"
-        }
-    ],
-    "require": {
-        "elasticsearch/elasticsearch": "~7.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Hsnbd\\AuditLogger\\": "/src"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Hsnbd\\AuditLogger\\AuditLoggerServiceProvider"
-            ]
-        }
-    },
-    "minimum-stability": "dev"
+  "name": "hsnbd/auditlog",
+  "description": "Elasticsearch auditlog for laravel application.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Baker Hasan",
+      "email": "hasanbd666@gmail.com"
+    }
+  ],
+  "require": {
+    "elasticsearch/elasticsearch": "~7.0"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "Hsnbd\\AuditLogger\\": "/src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Hsnbd\\AuditLogger\\Tests\\": "tests"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Hsnbd\\AuditLogger\\AuditLoggerServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "scripts": {
+    "test": "vendor\\bin\\phpunit"
+  }
 }

@@ -28,7 +28,7 @@ class AuditLog
 
     }
 
-    public function setMessage(?string $message)
+    public function setMessage(?string $message): AuditLog
     {
         $this->message = $message;
         return $this;
