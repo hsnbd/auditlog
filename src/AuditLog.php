@@ -50,7 +50,7 @@ class AuditLog
 
     public function by(?object $model): self
     {
-        if (!is_null($model) ) {
+        if (!is_null($model)) {
             $this->authModel = $model;
         }
         return $this;
@@ -106,7 +106,7 @@ class AuditLog
         }
 
         if (empty($this->message)) {
-            $this->setMessage((class_basename($this->performerModel) ?? 'A Model') . ' has been '. $this->modelActionType .' at '. ($this->timestamp ?? date('Y-m-d H:i:s')));
+            $this->setMessage((class_basename($this->performerModel) ?? 'A Model') . ' has been ' . $this->modelActionType . ' at ' . ($this->timestamp ?? date('Y-m-d H:i:s')));
         }
 
         $this->performerModelId = $this->performerModel ? ($this->performerModel->getAttribute('id') ?? $this->performerModel->id) : null;
@@ -118,7 +118,7 @@ class AuditLog
     {
         /** @var User $authUser */
         $authUser = new \stdClass();
-        if(Auth::check()) {
+        if (Auth::check()) {
             $authUser = \Auth::user();
         }
 
@@ -126,22 +126,22 @@ class AuditLog
         $this->data = array_merge(
             $this->data,
             [
-                'action_model_class' => $this->performerModel ?  get_class($this->performerModel) : null,
+                'action_model_class' => $this->performerModel ? get_class($this->performerModel) : null,
                 'action_model_id' => $this->performerModelId ?? null,
                 'timestamp' => ($this->timestamp ?? date('Y-m-d H:i:s')),
                 'action_type' => $this->modelActionType,
                 'alert_type' => $alertType,
                 'log_type' => $logType,
                 'browser' => request()->header('User-Agent'),
-                'ip_addr' => '180.148.214.181',
-//            'ip_addr' => request()->ip(),
+//                'ip_addr' => '180.148.214.181',
+                'ip_addr' => request()->ip(),
                 'message' => $this->authUsernameNMobile . (!empty($this->message) ? $this->message : 'take an action'),
                 "user" => [
                     "id" => $authUser->id ?? null,
                     'username' => $authUser->username ?? null,
                     'mobile' => $authUser->cell_phone ?? null,
-                    'office' => optional($authUser->officeInformation)->title ?? null,
-                    'office_designation' => optional($authUser->officeDesignation)->title ?? null,
+                    'office' => property_exists($authUser, 'officeInformation') ? optional($authUser->officeInformation)->title : null,
+                    'office_designation' => property_exists($authUser, 'officeDesignation') ? optional($authUser->officeDesignation)->title : null,
                 ]
             ],
             $data
