@@ -36,7 +36,7 @@ class ESMessagePush implements ShouldQueue
 
             $client = ClientBuilder::create()
                 ->setHandler($singleHandler)
-                ->setHosts(config('audit-logger.elastic-search.hosts'))
+                ->setHosts(config('audit-logger.es.hosts'))
                 ->build();
 
             $params = [
