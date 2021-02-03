@@ -11,6 +11,7 @@ An easy way to use the [official Elastic Search client](https://github.com/elast
 - [Installation](#installation)
 - [Usage](#usage)
 - [Available Commands](#available-commands)
+- [Laravel Model Log](#laravel-model-log)
 - [Contributions and Support](#contributions-and-support)
 - [Author](#author)
 - [License](#license)
@@ -47,9 +48,10 @@ The `AuditLog` facade is used for logging. In order to use that.
 \Hsnbd\AuditLogger\AuditLog::debug('Hello World');
 ```
 
-
 This command must run always.
 ```php artisan queue:work database --queue=listeners```
+
+Please see [Available Commands](#available-commands) section before start.
 
 ## Available Commands
 Some useful console commands.
@@ -63,6 +65,13 @@ Test auditlog if it is working or not.
 ```sh
 php artisan auditlog:test
 ```
+
+## Laravel Model Log
+If you want to track every step of laravel model, you can set it using.
+```php
+class ABCModel extends Model implements \Hsnbd\AuditLogger\Interfaces\ShouldAuditLog {}
+```
+So you don't have to do anything after that.
 
 ## Contributions and Support
 Thanks to [everyone](https://github.com/hsnbd/auditlog/graphs/contributors)
