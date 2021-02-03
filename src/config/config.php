@@ -1,14 +1,44 @@
 <?php
 
+/**
+ * --------------------------------
+ * Example hosts
+ * ---------------------------------
+ * array [
+ *      'host' => 'foo.com',
+ *      'port' => '9200',
+ *      'scheme' => 'https',
+ *      'path' => '/elastic',
+ *      'user' => 'username',
+ *      'pass' => 'password!#$?*abc'
+ * ]
+ */
 return [
     'es' => [
         'hosts' => [
             [
-                'host' => '180.148.214.184',
+                'host' => '127.0.0.1',
                 'port' => 9200,
-                'scheme' => 'http'
+                'scheme' => 'http',
+            ],
+            //[
+              //  'host' => 'foo.com',
+              //  'port' => '9200',
+              //  'scheme' => 'https',
+              //  'path' => '/elastic',
+              //  'user' => 'username',
+              //  'pass' => 'password!#$?*abc'
+            //]
+        ],
+        'index' => [
+            'name' => '',
+            'pipeline' => '',
+            'template' => '',
+            'policy' => '',
+            'config' => [
+                'settings' => [
+                ]
             ]
         ],
-        'app-audit-pipeline' => 'application_audit_pipeline'
     ]
 ];
