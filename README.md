@@ -1,4 +1,4 @@
-#Welcome to ELK AuditLog
+# Welcome to ELK AuditLog
 
 An easy way to use the [official Elastic Search client](https://github.com/elastic/elasticsearch-php) for auditlog in your Laravel applications.
 
