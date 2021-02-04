@@ -3,23 +3,23 @@
 namespace Hsnbd\AuditLogger;
 
 use Hsnbd\AuditLogger\Commands\BootstrapLogServer;
-use Hsnbd\AuditLogger\Interfaces\ShouldAuditLog;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AuditLoggerServiceProvider extends ServiceProvider
 {
+    public string $packageAlias = 'audit-logger';
+
     /**
      * Register any application services.
      * @return void
      */
     public function register()
     {
-        $this->app->bind('audit-logger', function ($app) {
+        $this->app->bind($this->packageAlias, function ($app) {
             return new AuditLog();
         });
 
-        $this->mergeConfigFrom(__DIR__ . '/config/config.php', 'audit-logger');
+        $this->mergeConfigFrom($this->getConfigFilePath(), $this->packageAlias);
         $this->app->register(EventServiceProvider::class);
         $this->loadHelpers();
     }
@@ -36,32 +36,16 @@ class AuditLoggerServiceProvider extends ServiceProvider
             ]);
 
             $this->publishes([
-                __DIR__ . '/config/config.php' => config_path('audit-logger.php'),
+                $this->getConfigFilePath() => config_path($this->packageAlias . '.php'),
             ], 'config');
         }
 
-        //It seems boot method run twice.
+        //TODO: It seems boot method run twice.
 
-        Event::listen([
-                'eloquent.saved: *',
-//                'eloquent.created: *',
-                'eloquent.updated: *',
-                'eloquent.deleted: *',
-                'eloquent.restored: *',
-            ]
-            , function ($eventName, $data) {
-                $modelClass = str_replace('eloquent.saved: ', '', $eventName ?? '');
-//            $modelClass = str_replace('eloquent.created: ', '', $modelClass ?? '');
-                $modelClass = str_replace('eloquent.updated: ', '', $modelClass ?? '');
-                $modelClass = str_replace('eloquent.deleted: ', '', $modelClass ?? '');
-                $modelClass = str_replace('eloquent.restored: ', '', $modelClass ?? '');
-                if (
-                    !empty($modelClass)
-                    && (new \ReflectionClass($modelClass))->implementsInterface(ShouldAuditLog::class)
-                ) {
-                    \Hsnbd\AuditLogger\Facades\AuditLog::on($data[0] ?? new \stdClass())->setActionType($eventName)->info(null);
-                }
-            });
+        /**
+         * For model log using ShouldAuditLog
+         */
+        AuditLogManager::registerEloquentModelEventListener();
     }
 
     /**
@@ -70,5 +54,10 @@ class AuditLoggerServiceProvider extends ServiceProvider
     protected function loadHelpers()
     {
         require_once __DIR__ . '/helpers/helper.php';
+    }
+
+    protected function getConfigFilePath(): string
+    {
+        return __DIR__ . '/config/config.php';
     }
 }
