@@ -12,8 +12,7 @@
   "require": {
     "elasticsearch/elasticsearch": "^7.10",
     "php": ">=7.4",
-    "laravel/framework": ">=5.7 <=8.16",
-    "monolog/monolog": "^2.0"
+    "laravel/framework": ">=5.7 <=8.16"
   },
   "autoload": {
     "psr-4": {
