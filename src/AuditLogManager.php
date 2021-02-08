@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Event;
  */
 class AuditLogManager
 {
-
     /**
      * Eloquent event is to log Eloquent Model directly by listening events.
      * @return array
@@ -28,7 +27,7 @@ class AuditLogManager
     {
         Event::listen(self::getEloquentEvents(), function ($eventName, $data) {
             $modelClass = str_replace('eloquent.saved: ', '', $eventName ?? '');
-//          $modelClass = str_replace('eloquent.created: ', '', $modelClass ?? '');
+            $modelClass = str_replace('eloquent.created: ', '', $modelClass ?? '');
             $modelClass = str_replace('eloquent.updated: ', '', $modelClass ?? '');
             $modelClass = str_replace('eloquent.deleted: ', '', $modelClass ?? '');
             $modelClass = str_replace('eloquent.restored: ', '', $modelClass ?? '');

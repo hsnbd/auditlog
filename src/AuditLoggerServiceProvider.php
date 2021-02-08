@@ -2,6 +2,7 @@
 
 namespace Hsnbd\AuditLogger;
 
+use Hsnbd\AuditLogger\Commands\AuditlogTesting;
 use Hsnbd\AuditLogger\Commands\BootstrapLogServer;
 use Illuminate\Support\ServiceProvider;
 
@@ -32,7 +33,8 @@ class AuditLoggerServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                BootstrapLogServer::class
+                BootstrapLogServer::class,
+                AuditlogTesting::class
             ]);
 
             $this->publishes([

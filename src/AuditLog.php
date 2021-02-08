@@ -129,12 +129,18 @@ class AuditLog
                 'action_model_class' => $this->performerModel ? get_class($this->performerModel) : null,
                 'action_model_id' => $this->performerModelId ?? null,
                 'timestamp' => ($this->timestamp ?? date('Y-m-d H:i:s')),
+                'action_model_actual_data' => json_encode([
+                    'name' => 'Hasan'
+                ]),
+                'action_model_modified_data' => json_encode([
+                    'name' => 'Hasan 2'
+                ]),
                 'action_type' => $this->modelActionType,
                 'alert_type' => $alertType,
                 'log_type' => $logType,
                 'browser' => request()->header('User-Agent'),
-//                'ip_addr' => '180.148.214.181',
-                'ip_addr' => request()->ip(),
+                'ip_addr' => '180.148.214.181',
+//                'ip_addr' => request()->ip(),
                 'message' => $this->authUsernameNMobile . (!empty($this->message) ? $this->message : 'take an action'),
                 "user" => [
                     "id" => $authUser->id ?? null,

@@ -6,7 +6,7 @@ use Hsnbd\AuditLogger\HSNElasticSearch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class CreateIngestCommand extends Command
+class __CreateIngestCommand extends Command
 {
     /**
      * The name and signature of the console command.

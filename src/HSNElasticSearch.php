@@ -21,11 +21,11 @@ class HSNElasticSearch
     public final static function getClient(): \Elasticsearch\Client
     {
         if (!isset(self::$client)) {
-//            $logger = new Logger('UserNamedLogger');
-//            $filename = storage_path('logs/hsn-audit-logger.log');
-//            $streamHandler = new StreamHandler($filename, \Monolog\Logger::DEBUG, true, 0755);
-//            $streamHandler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
-//            $logger->pushHandler($streamHandler);
+            $logger = new Logger('UserNamedLogger');
+            $filename = storage_path('logs/hsn-audit-logger.log');
+            $streamHandler = new StreamHandler($filename, \Monolog\Logger::DEBUG, true, 0755);
+            $streamHandler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
+            $logger->pushHandler($streamHandler);
 
             $singleHandler  = ClientBuilder::singleHandler();
             // $multiHandler   = ClientBuilder::multiHandler();
@@ -33,7 +33,7 @@ class HSNElasticSearch
             $client = ClientBuilder::create();
             $client->setHandler($singleHandler);
             $client->setHosts(config('audit-logger.es.hosts'));
-//            $client->setLogger($logger);
+            $client->setLogger($logger);
             //$client->setRetries(2);
 
             self::$client = $client->build();

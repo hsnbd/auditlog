@@ -15,8 +15,8 @@
  */
 return [
     'eloquent_event_for_log' => [
-        'eloquent.saved: *',
-//        'eloquent.created: *',
+//        'eloquent.saved: *',
+        'eloquent.created: *',
         'eloquent.updated: *',
         'eloquent.deleted: *',
         'eloquent.restored: *',

@@ -2,7 +2,6 @@
 
 namespace Hsnbd\AuditLogger\Listeners;
 
-use Elasticsearch\ClientBuilder;
 use Hsnbd\AuditLogger\HSNElasticSearch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
@@ -34,8 +33,10 @@ class ESMessagePush implements ShouldQueue
     {
         try {
             $indexName = config('audit-logger.es.index.name');
-            Log::debug(config('audit-logger.es'));
-            Log::debug($indexName);
+            $ingestPipeline = config('audit-logger.es.index.pipeline');
+
+//            Log::debug(config('audit-logger.es'));
+//            Log::debug($indexName);
             if (empty($indexName)) {
                 throw new \Exception('Index name should not be empty. Please add index name in audit-logger config file.');
             }
@@ -46,8 +47,8 @@ class ESMessagePush implements ShouldQueue
                 'body' => $event->logger->data
             ];
 
-            if (config('audit-logger.es.app-audit-pipeline')) {
-                $params['pipeline'] = config('audit-logger.es.app-audit-pipeline');
+            if (!empty($ingestPipeline)) {
+                $params['pipeline'] = $ingestPipeline;
             }
 
             $response = $client->index($params);
