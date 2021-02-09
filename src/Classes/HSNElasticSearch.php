@@ -1,6 +1,6 @@
 <?php
 
-namespace Hsnbd\AuditLogger;
+namespace Hsnbd\AuditLogger\Classes;
 
 use Elasticsearch\ClientBuilder;
 use Monolog\Logger;

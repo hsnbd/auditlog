@@ -2,9 +2,12 @@
 
 namespace Hsnbd\AuditLogger;
 
-use App\Models\User;
+use Hsnbd\AuditLogger\Classes\AuditLogManager;
 use Hsnbd\AuditLogger\Events\ESMessagePushed;
-use Illuminate\Support\Facades\Auth;
+use Hsnbd\AuditLogger\Interfaces\AuditLogProcessor as AuditLogProcessorInterface;
+use Hsnbd\AuditLogger\Classes\AuditLogProcessor;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class AuditLog
@@ -13,144 +16,123 @@ use Illuminate\Support\Facades\Auth;
 class AuditLog
 {
     //php artisan queue:work database --queue=listeners
-    private ?object $authModel = null;
-    private ?object $performerModel = null;
-    private ?string $performerModelId;
-    private ?string $timestamp;
-    private ?string $modelActionType;
-    protected string $formatter = "";
-    public ?string $message = "";
-    public string $authUsernameNMobile = '';
-    public array $data = [];
+    public array $metaDataRules = [
+        'timestamp' => 'required|timestamp',
+        'alert_type' => 'required',
+        'log_type' => 'required',
+        'browser' => 'required',
+        'ip_addr' => 'required',
+    ];
+
+    public array $userDataRules = [
+        "id" => 'required',
+        'username' => 'required',
+        'mobile' => 'required',
+        'office' => 'required',
+        'office_designation' => 'required',
+    ];
+
 
     public function __construct()
     {
 
     }
 
-    public function setMessage(?string $message): AuditLog
+    public function debug(?string $message, ?AuditLogProcessorInterface $auditLogProcessor = null): ?string
     {
-        $this->message = $message;
-        return $this;
-    }
-
-    public function info(?string $message, array $data = []): ?string
-    {
-        $this->setMessage($message);
-        $this->pushMessage(__FUNCTION__, $data);
-        return $this->message;
-    }
-
-    public function debug(?string $message, array $data = []): ?string
-    {
-        $this->setMessage($message);
-        $this->pushMessage(__FUNCTION__, $data);
-        return $this->message;
-    }
-
-    public function by(?object $model): self
-    {
-        if (!is_null($model)) {
-            $this->authModel = $model;
+        if (is_null($auditLogProcessor)) {
+            $auditLogProcessor = new AuditLogProcessor();
         }
-        return $this;
+
+        $auditLogProcessor->message = $message;
+
+        $log = $auditLogProcessor->processAuditLog(__FUNCTION__);
+
+        $this->pushLog($log);
+
+        return !empty($log['message']) ? $log['message'] : '';
     }
 
-    public function on(?object $model): self
+    public function info(?string $message, ?AuditLogProcessorInterface $auditLogProcessor = null): ?string
     {
-        if (!is_null($model)) {
-            $this->performerModel = $model;
+        if (is_null($auditLogProcessor)) {
+            $auditLogProcessor = new AuditLogProcessor();
         }
-        return $this;
+
+        $auditLogProcessor->message = $message;
+
+        $log = $auditLogProcessor->processAuditLog(__FUNCTION__);
+
+        $this->pushLog($log);
+
+        return !empty($log['message']) ? $log['message'] : '';
     }
 
-    public function at(?string $timestamp): self
+    public function parseModelEventName(?string $actionType): string
     {
-        if (!is_null($timestamp)) {
-            $this->timestamp = $timestamp;
-        }
-        return $this;
-    }
+        $modelEvent = 'affected';
 
-    public function setActionType(?string $actionType): self
-    {
         if (!is_null($actionType)) {
-            $this->modelActionType = $actionType;
+            preg_match('/eloquent\.([\w]+):/', ($actionType ?? ''), $matches);
+            $modelEvent = !empty($matches[1]) ? $matches[1] : $modelEvent;
         }
-        return $this;
+
+        return $modelEvent;
     }
 
-    private function pushMessage(string $alertType, array $data = []): void
+    public function processLog(string $alertType, ?AuditLogProcessorInterface $auditLogProcessor): array
     {
-        $this->processLog();
-        $this->processMessage($data, 'application_log', $alertType);
+        $basicLogData = $this->getBasicLogData($auditLogProcessor->model, $auditLogProcessor->modelActionType);
+        $logMetaData = $this->getLogMetaData($auditLogProcessor->model, $alertType, $auditLogProcessor->timestamp);
+        $userLogData = $auditLogProcessor->getUserInfo();
 
-        event(new ESMessagePushed($this));
+        $log = array_merge($basicLogData, $logMetaData, ['user' => $userLogData]);
+
+        if (!empty($auditLogProcessor->message)) {
+            $log['message'] = $auditLogProcessor->message;
+        }
+
+        return $log;
     }
 
-    protected function processLog()
+    protected function pushLog(array $data)
     {
-        if (empty($this->modelActionType)) {
-            $this->modelActionType = $this->performerModel ? ($this->performerModel->wasRecentlyCreated ? 'saved' : 'updated') : 'affected';
-        } else {
-            preg_match('/eloquent\.([\w]+):/', ($this->modelActionType ?? ''), $matches);
-            $modelEvent = !empty($matches[1]) ? $matches[1] : 'affected';
-            if ($modelEvent === 'saved' && $this->performerModel) {
-                if (!$this->performerModel->wasRecentlyCreated) {
-                    $modelEvent = 'updated';
-                } else {
-                    $modelEvent = 'created';
-                }
-            }
-            $this->modelActionType = $modelEvent;
-        }
-
-        if (empty($this->message)) {
-            $this->setMessage((class_basename($this->performerModel) ?? 'A Model') . ' has been ' . $this->modelActionType . ' at ' . ($this->timestamp ?? date('Y-m-d H:i:s')));
-        }
-
-        $this->performerModelId = $this->performerModel ? ($this->performerModel->getAttribute('id') ?? $this->performerModel->id) : null;
-
-        $this->authModel = $this->authModel ?: (Auth::user() ?? new \stdClass());
+        event(new ESMessagePushed($data));
     }
 
-    protected function processMessage(array $data, string $logType, string $alertType): void
+    protected function getBasicLogData(?Model $model, ?string $modelActionType): array
     {
-        /** @var User $authUser */
-        $authUser = new \stdClass();
-        if (Auth::check()) {
-            $authUser = \Auth::user();
+        $modelDataRules = [
+            'action_model_class' => 'required',
+            'action_model_id' => 'required',
+            'action_model_changes' => 'required',
+            'action_type' => 'required',
+        ];
+
+        if (is_null($model)) {
+            return [];
         }
 
-        $this->authUsernameNMobile = (($authUser->username ?? 'undefined') . '::' . ($authUser->cell_phone ?? 'undefined') . ': ');
-        $this->data = array_merge(
-            $this->data,
-            [
-                'action_model_class' => $this->performerModel ? get_class($this->performerModel) : null,
-                'action_model_id' => $this->performerModelId ?? null,
-                'timestamp' => ($this->timestamp ?? date('Y-m-d H:i:s')),
-                'action_model_actual_data' => json_encode([
-                    'name' => 'Hasan'
-                ]),
-                'action_model_modified_data' => json_encode([
-                    'name' => 'Hasan 2'
-                ]),
-                'action_type' => $this->modelActionType,
-                'alert_type' => $alertType,
-                'log_type' => $logType,
-                'browser' => request()->header('User-Agent'),
-                'ip_addr' => '180.148.214.181',
-//                'ip_addr' => request()->ip(),
-                'message' => $this->authUsernameNMobile . (!empty($this->message) ? $this->message : 'take an action'),
-                "user" => [
-                    "id" => $authUser->id ?? null,
-                    'username' => $authUser->username ?? null,
-                    'mobile' => $authUser->cell_phone ?? null,
-                    'office' => property_exists($authUser, 'officeInformation') ? optional($authUser->officeInformation)->title : null,
-                    'office_designation' => property_exists($authUser, 'officeDesignation') ? optional($authUser->officeDesignation)->title : null,
-                ]
-            ],
-            $data
-        );
+        $modelData = AuditLogManager::processModelData($model, $modelActionType);
+        $modelValidate = AuditLogManager::validateModelLogData($modelData, $modelDataRules);
+
+        if ($modelValidate->fails()) {
+            Log::debug($modelValidate->errors());
+            throw new \Exception('Required data not found. Log: ' . $modelValidate->errors()->first());
+        }
+
+        return $modelData;
+
+    }
+
+    protected function getLogMetaData(?Model $model, string $alertType, ?string $timestamp): array
+    {
+        return [
+            'timestamp' => $timestamp ? $timestamp : date('Y-m-d H:i:s'),
+            'alert_type' => $alertType,
+            'log_type' => !is_null($model) ? 'eloquent_log' : 'application_log',
+            'browser' => request()->header('User-Agent'),
+            'ip_addr' => request()->ip(),
+        ];
     }
 }

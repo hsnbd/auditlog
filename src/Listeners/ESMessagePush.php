@@ -44,7 +44,7 @@ class ESMessagePush implements ShouldQueue
             $client = HSNElasticSearch::getClient();
             $params = [
                 'index' => $indexName,
-                'body' => $event->logger->data
+                'body' => $event->logData
             ];
 
             if (!empty($ingestPipeline)) {

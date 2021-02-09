@@ -14,6 +14,7 @@
  * ]
  */
 return [
+    'logProcessor' => \Hsnbd\AuditLogger\Classes\AuditLogProcessor::class,
     'eloquent_event_for_log' => [
 //        'eloquent.saved: *',
         'eloquent.created: *',

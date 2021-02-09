@@ -2,7 +2,6 @@
 
 namespace Hsnbd\AuditLogger\Events;
 
-use Hsnbd\AuditLogger\AuditLog;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -12,18 +11,18 @@ class ESMessagePushed
     use Dispatchable, SerializesModels;
 
     /**
-     * @var AuditLog
+     * @var array
      */
-    public AuditLog $logger;
+    public array $logData;
 
     /**
      * Create a new event instance.
      *
-     * @param AuditLog $logger
+     * @param array $logData
      */
-    public function __construct(AuditLog $logger)
+    public function __construct(array $logData)
     {
-        $this->logger = $logger;
+        $this->logData = $logData;
     }
 
     /**
