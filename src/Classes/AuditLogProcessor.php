@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 
 /**
- * Class AuditLog
+ * Class AuditLogProcessor
  * @package Hsnbd\AuditLogger
  */
 class AuditLogProcessor implements AuditLogProcessorInterface
@@ -20,9 +20,14 @@ class AuditLogProcessor implements AuditLogProcessorInterface
     public ?Model $model;
     public array $data;
     public string $timestamp;
-    public ?string $modelActionType;
-    public ?string $message;
+    public ?string $modelActionType = null;
+    public ?string $message = null;
+    public ?string $alertType = null;
 
+    /**
+     * AuditLogProcessor constructor.
+     * @param array $logData
+     */
     public function __construct(array $logData = [])
     {
         if (!empty($logData['model'])) {
@@ -55,8 +60,15 @@ class AuditLogProcessor implements AuditLogProcessorInterface
         if (!empty($logData['modelActionType'])) {
             $this->modelActionType = $logData['modelActionType'];
         }
+
+        if (!empty($logData['alertType'])) {
+            $this->alertType = $logData['alertType'];
+        }
     }
 
+    /**
+     * @return array
+     */
     public function getUserInfo(): array
     {
         /** @var User $user */
@@ -73,12 +85,16 @@ class AuditLogProcessor implements AuditLogProcessorInterface
         ];
     }
 
-    public function processAuditLog(string $alertType): array
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    public function processAuditLog(): array
     {
         $auditLog = new AuditLog();
         $this->modelActionType = $auditLog->parseModelEventName($this->modelActionType);
 
-        return $auditLog->processLog($alertType, $this);
+        return $auditLog->processLog($this);
     }
 
 }

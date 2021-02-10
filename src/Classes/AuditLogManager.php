@@ -85,18 +85,11 @@ class AuditLogManager
         $data = [
             'action_model_class' => get_class($model),
             'action_model_id' => $modelId,
-            'action_model_changes' => $model->getChanges(),
+            'action_model_changes' => json_encode($model->getChanges()),
             'action_type' => $actionType,
             'message' => $message,
         ];
 
         return $data;
-    }
-
-    public static function validateLogDataAfterProcessing(AuditLog $auditLog, string $type)
-    {
-        if ($type === self::TYPE_ELOQUENT) {
-            $userValidate = Validator::make($auditLog->userDataArray, $auditLog->userDataRules);
-        }
     }
 }

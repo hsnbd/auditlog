@@ -5,7 +5,7 @@ namespace Hsnbd\AuditLogger\Interfaces;
 
 interface AuditLogProcessor
 {
-    public function processAuditLog(string $alertType): array;
+    public function processAuditLog(): array;
 
     public function getUserInfo(): array;
 }

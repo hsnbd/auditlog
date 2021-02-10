@@ -2,7 +2,7 @@
 
 namespace Hsnbd\AuditLogger\Listeners;
 
-use Hsnbd\AuditLogger\HSNElasticSearch;
+use Hsnbd\AuditLogger\Classes\HSNElasticSearch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 

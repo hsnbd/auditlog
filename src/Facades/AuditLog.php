@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string debug(?string $message, ?AuditLogProcessor $auditLogProcessor = null)
  */
 class AuditLog extends Facade {
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'audit-logger';
     }
