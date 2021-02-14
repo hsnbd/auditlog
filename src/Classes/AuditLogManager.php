@@ -49,7 +49,7 @@ class AuditLogManager
                 }
 
                 if (!(new \ReflectionClass($auditLogProcessorClass))->implementsInterface(\Hsnbd\AuditLogger\Interfaces\AuditLogProcessor::class)) {
-                    throw new \Exception('log processor should implement '. \Hsnbd\AuditLogger\Interfaces\AuditLogProcessor::class . 'interface');
+                    throw new \Exception('log processor should implement ' . \Hsnbd\AuditLogger\Interfaces\AuditLogProcessor::class . 'interface');
                 }
 
                 $auditLogProcessor = new $auditLogProcessorClass();
@@ -85,11 +85,38 @@ class AuditLogManager
         $data = [
             'action_model_class' => get_class($model),
             'action_model_id' => $modelId,
-            'action_model_changes' => json_encode($model->getChanges()),
+            'action_model_changes' => self::getModelChangesData($model),
             'action_type' => $actionType,
             'message' => $message,
         ];
 
         return $data;
+    }
+
+    /**
+     * @param Model $model
+     * @return false|string
+     */
+    public static function getModelChangesData(Model $model)
+    {
+        $changes = $model->getChanges();
+        $allowedChanges = [];
+
+        if (
+            $changes
+            && property_exists($model, 'auditLogIgnore')
+            && is_array($model->auditLogIgnore)
+            && count($model->auditLogIgnore)
+        ) {
+            foreach ($changes as $key => $value) {
+                if (!in_array($key, $model->auditLogIgnore)) {
+                    $allowedChanges[$key] = $value;
+                }
+            }
+        } else {
+            $allowedChanges = $changes;
+        }
+
+        return json_encode($allowedChanges);
     }
 }
