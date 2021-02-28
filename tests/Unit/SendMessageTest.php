@@ -8,6 +8,8 @@ class SendMessageTest extends TestCase
 {
     public function testBasicTest()
     {
-        $this->assertEquals('Hello', (new \Hsnbd\AuditLogger\AuditLog)->debug('Hello'));
+        $a = (new \Hsnbd\AuditLogger\AuditLog)->debug('Hello');
+        dd($a);
+        $this->assertEquals('Hello', $a);
     }
 }

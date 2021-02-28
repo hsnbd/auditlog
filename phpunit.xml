@@ -15,6 +15,9 @@
          stopOnFailure="false"
          verbose="true"
 >
+    <php>
+        <env name="APP_KEY" value="base64:6igsHe3RYC88h3Wje3VzSNqPwUr7Z5ru+NZw/9qwY5M=" />
+    </php>
     <testsuites>
         <testsuite name="AuditLogger">
             <directory suffix="Test.php">./tests</directory>

@@ -1,43 +1,23 @@
 <?php
 
 namespace Hsnbd\AuditLogger\Tests;
+use Hsnbd\AuditLogger\AuditLoggerServiceProvider;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use PHPUnit\Framework\Constraint\StringContains;
 
-
-abstract class TestCase extends \Orchestra\Testbench\TestCase
+class TestCase extends OrchestraTestCase
 {
+
+
+    /**
+     * @param \Illuminate\Foundation\Application $app
+     *
+     * @return array
+     */
     protected function getPackageProviders($app)
     {
         return [
-            "Hsnbd\\AuditLogger\\AuditLoggerServiceProvider"
+            AuditLoggerServiceProvider::class,
         ];
-    }
-
-    protected function getPackageAliases($app)
-    {
-        return [
-            "AuditLog" => "Hsnbd\\AuditLogger\\Facades\\AuditLog"
-        ];
-    }
-
-    protected function getEnvironmentSetUp($app)
-    {
-        // Setup default database to use sqlite :memory:
-        $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => '',
-        ]);
-    }
-
-    /**
-     * Get application timezone.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return string|null
-     */
-    protected function getApplicationTimezone($app)
-    {
-        return 'Asia/Dhaka';
     }
 }
