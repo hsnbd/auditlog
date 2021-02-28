@@ -14,7 +14,7 @@ class TestCase extends OrchestraTestCase
      *
      * @return array
      */
-    protected function getPackageProviders($app)
+    protected function overrideApplicationProviders($app)
     {
         return [
             AuditLoggerServiceProvider::class,
