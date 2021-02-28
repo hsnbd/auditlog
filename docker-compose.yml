@@ -1,0 +1,10 @@
+php74:
+  build: ./docker/php7.4
+  volumes:
+    - .:/app
+  working_dir: /app
+hhvm:
+  build: ./docker/hhvm
+  volumes:
+    - .:/app
+  working_dir: /app

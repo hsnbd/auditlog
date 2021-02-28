@@ -43,8 +43,6 @@ class AuditLoggerServiceProvider extends ServiceProvider
             ], 'config');
         }
 
-        //TODO: It seems boot method run twice.
-
         /**
          * For model log using ShouldAuditLog
          */
