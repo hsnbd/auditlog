@@ -3,6 +3,7 @@
 namespace Hsnbd\AuditLogger\Classes;
 
 use Hsnbd\AuditLogger\AuditLog;
+use Hsnbd\AuditLogger\Interfaces\IAuditLogProcessor;
 use Hsnbd\AuditLogger\Interfaces\ShouldAuditLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -93,6 +94,33 @@ class AuditLogManager
         return $data;
     }
 
+
+    /**
+     * @param IAuditLogProcessor $auditLogProcessor
+     * @return array
+     */
+    public static function getLogMetaData(IAuditLogProcessor $auditLogProcessor): array
+    {
+        return [
+            'timestamp' => $auditLogProcessor->getTimestamp(),
+            'alert_type' => $auditLogProcessor->getAlertType(),
+            'log_type' => $auditLogProcessor->getLogType(),
+            'browser' => $auditLogProcessor->getBrowserAgent(),
+            'ip_addr' => $auditLogProcessor->getIpAddress(),
+        ];
+    }
+    /**
+     * @param IAuditLogProcessor $auditLogProcessor
+     * @return array
+     */
+    public static function getBasicLogData(IAuditLogProcessor $auditLogProcessor): array
+    {
+        if (is_null($auditLogProcessor->getModel())) {
+            return [];
+        }
+        return AuditLogManager::processModelData($auditLogProcessor->getModel(), $auditLogProcessor->getModelActionType());
+    }
+
     /**
      * @param Model $model
      * @return false|string
@@ -118,5 +146,20 @@ class AuditLogManager
         }
 
         return json_encode($allowedChanges);
+    }
+
+    public function getParsedAuditLogData(AuditLogProcessor $auditLogProcessor): array
+    {
+        $basicLogData = AuditLogManager::getBasicLogData($auditLogProcessor);
+        $logMetaData = AuditLogManager::getLogMetaData($auditLogProcessor);
+        $userLogData = $auditLogProcessor->getUserMetaData();
+
+        $log = array_merge($basicLogData, $logMetaData, ['user' => $userLogData]);
+
+        if (!empty($auditLogProcessor->message)) {
+            $log['message'] = $auditLogProcessor->message;
+        }
+
+        return $log;
     }
 }

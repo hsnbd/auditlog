@@ -11,8 +11,10 @@
 |
 */
 
+use Illuminate\Support\Facades\Facade;
+
 $app = new Illuminate\Foundation\Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__."/vendor/laravel/laravel/bootstrap")
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__."/vendor/orchestra/testbench-core/laravel")
 );
 
 /*
@@ -28,17 +30,17 @@ $app = new Illuminate\Foundation\Application(
 
 $app->singleton(
     Illuminate\Contracts\Http\Kernel::class,
-    App\Http\Kernel::class
+    \Orchestra\Testbench\Http\Kernel::class
 );
 
 $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
-    App\Console\Kernel::class
+    \Orchestra\Testbench\Console\Kernel::class
 );
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
-    App\Exceptions\Handler::class
+    \Orchestra\Testbench\Exceptions\Handler::class
 );
 
 // If you need some ServiceProvider, you can install it here.
@@ -58,5 +60,7 @@ $app->useEnvironmentPath(__DIR__);
 | from the actual running of the application and sending responses.
 |
 */
+
+Facade::setFacadeApplication($app);
 
 return $app;

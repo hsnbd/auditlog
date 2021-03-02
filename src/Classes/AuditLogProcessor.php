@@ -2,19 +2,17 @@
 
 namespace Hsnbd\AuditLogger\Classes;
 
-use App\Models\User;
 use Hsnbd\AuditLogger\AuditLog;
 use Hsnbd\AuditLogger\Interfaces\AuditLogAuthUser;
-use Hsnbd\AuditLogger\Interfaces\AuditLogProcessor as AuditLogProcessorInterface;
+use Hsnbd\AuditLogger\Interfaces\IAuditLogProcessor;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 
 /**
  * Class AuditLogProcessor
  * @package Hsnbd\AuditLogger
  */
-class AuditLogProcessor implements AuditLogProcessorInterface
+class AuditLogProcessor implements IAuditLogProcessor
 {
     public ?AuditLogAuthUser $user;
     public ?Model $model;
@@ -38,10 +36,9 @@ class AuditLogProcessor implements AuditLogProcessorInterface
 
         if (!empty($logData['user'])) {
             $this->user = $logData['user'];
-        } elseif (Auth::check()) {
-            $this->user = Auth::user();
         } else {
-            $this->user = new User();
+            $user = config('audit-logger.userModel');
+            $this->user = new $user;
         }
 
 
@@ -68,33 +65,72 @@ class AuditLogProcessor implements AuditLogProcessorInterface
 
     /**
      * @return array
+     * @throws \Exception
      */
-    public function getUserInfo(): array
+    public function getAuditLogData(): array
     {
-        /** @var User $user */
-        if (is_null($this->user) && Auth::check()) {
-            $this->user = \Auth::user();
-        } elseif (is_null($this->user) && !Auth::check()) {
-            return [];
-        }
+        $auditLog = new AuditLog();
+        $auditLog->setAuditLogProcessorData($this);
 
-        return [
-            "id" => $this->user->id ?? null,
-            'username' => $this->user->username ?? null,
-            'mobile' => $this->user->cell_phone ?? null
-        ];
+        return $auditLog->getParsedAuditLogData();
     }
 
     /**
      * @return array
-     * @throws \Exception
      */
-    public function processAuditLog(): array
+    public function getUserMetaData(): array
     {
-        $auditLog = new AuditLog();
-        $this->modelActionType = $auditLog->parseModelEventName($this->modelActionType);
+        if (is_null($this->user)) {
+            return [];
+        }
 
-        return $auditLog->processLog($this);
+        return $this->user->getAuditLogUserMetaData();
     }
 
+    public function getModel(): ?Model
+    {
+        return !empty($this->model) ? $this->model : null;
+    }
+
+    public function getTimestamp(): string
+    {
+        return !empty($this->timestamp) ? $this->timestamp : date('Y-m-d');
+    }
+
+    public function getModelActionType(): ?string
+    {
+        return !empty($this->modelActionType) ? $this->modelActionType : null;
+    }
+
+    public function getMessage(): ?string
+    {
+        return !empty($this->message) ? $this->message : null;
+    }
+
+    public function getAlertType(): string
+    {
+        return !empty($this->alertType) ? $this->alertType : 'log';
+    }
+
+    public function getLogType(): string
+    {
+        return !empty($this->model) ? 'eloquent_log' : 'application_log';
+    }
+
+    public function getBrowserAgent(): ?string
+    {
+        return request()->header('User-Agent');
+    }
+
+    public function getIpAddress(): ?string
+    {
+        return request()->ip();
+    }
+
+    public function getAuditLogFillableFields(): array
+    {
+        return [
+            'timestamp',
+        ];
+    }
 }

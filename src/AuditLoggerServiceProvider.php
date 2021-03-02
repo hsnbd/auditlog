@@ -7,6 +7,7 @@ use Hsnbd\AuditLogger\Commands\AuditlogTesting;
 use Hsnbd\AuditLogger\Commands\PingAuditLog;
 use Illuminate\Support\ServiceProvider;
 
+
 class AuditLoggerServiceProvider extends ServiceProvider
 {
     public string $packageAlias = 'audit-logger';

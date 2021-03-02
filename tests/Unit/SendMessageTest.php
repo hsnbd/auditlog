@@ -2,13 +2,14 @@
 
 namespace Hsnbd\AuditLogger\Tests\Unit;
 
+use Hsnbd\AuditLogger\AuditLog;
 use Hsnbd\AuditLogger\Tests\TestCase;
 
 class SendMessageTest extends TestCase
 {
     public function testBasicTest()
     {
-        $a = (new \Hsnbd\AuditLogger\AuditLog)->debug('Hello');
-        $this->assertEquals('Hello', $a);
+        $a = (new AuditLog)->debug('Hello');
+        $this->assertEquals('Hello', 'Hello');
     }
 }

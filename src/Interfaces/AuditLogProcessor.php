@@ -3,9 +3,29 @@
 namespace Hsnbd\AuditLogger\Interfaces;
 
 
-interface AuditLogProcessor
-{
-    public function processAuditLog(): array;
+use Illuminate\Database\Eloquent\Model;
 
-    public function getUserInfo(): array;
+interface IAuditLogProcessor
+{
+    public function getModel(): ?Model;
+
+    public function getTimestamp(): string;
+
+    public function getModelActionType(): ?string;
+
+    public function getMessage(): ?string;
+
+    public function getAlertType(): string;
+
+    public function getLogType(): string;
+
+    public function getAuditLogData(): array;
+
+    public function getUserMetaData(): array;
+
+    public function getAuditLogFillableFields(): array;
+
+    public function getBrowserAgent(): ?string;
+
+    public function getIpAddress();
 }
