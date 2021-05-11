@@ -2,7 +2,9 @@
 
 namespace Hsnbd\AuditLogger;
 
+use App\User;
 use Hsnbd\AuditLogger\Events\ESMessagePushed;
+use Hsnbd\AuditLogger\Interfaces\IAuditLogUser;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -16,9 +18,9 @@ class AuditLog
     /**
      * @param string|null $message
      * @param array|null $data
-     * @param array $logMeta
-     * @param array $userMeta
-     * @param array $applicationMeta
+     * @param array|null $logMeta
+     * @param array|null $userMeta
+     * @param array|null $applicationMeta
      * @return string|null
      */
     public function debug(?string $message = '', ?array $data = [], ?array $logMeta = [], ?array $userMeta = [], ?array $applicationMeta = []): ?string
@@ -29,9 +31,9 @@ class AuditLog
     /**
      * @param string|null $message
      * @param array|null $data
-     * @param array $logMeta
-     * @param array $userMeta
-     * @param array $applicationMeta
+     * @param array|null $logMeta
+     * @param array|null $userMeta
+     * @param array|null $applicationMeta
      * @return string|null
      */
     public function info(?string $message = '', ?array $data = [], ?array $logMeta = [], ?array $userMeta = [], ?array $applicationMeta = []): ?string
@@ -118,13 +120,21 @@ class AuditLog
     }
 
 
-    private function getUserMeta(array $userMeta)
+    private function getUserMeta(array $userMeta): array
     {
         $meta = [];
         if (count($userMeta)) {
-            $meta = $userMeta;
-        } elseif (Auth::check()) {
-            $meta = Auth::user();
+            return $userMeta;
+        }
+
+        if (Auth::check()) {
+            /** @var User $authUser */
+            $authUser = Auth::user();
+            if ($authUser instanceof IAuditLogUser) {
+                $meta = $authUser->getAuditLogUserMetaData();
+            } else {
+                $meta = $authUser->toArray();
+            }
         }
 
         return $meta;

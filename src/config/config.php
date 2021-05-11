@@ -14,8 +14,6 @@
  * ]
  */
 return [
-    'logProcessor' => \Hsnbd\AuditLogger\Classes\AuditLogProcessor::class,
-    'userModel' => \App\Models\User::class,
     'eloquent_event_for_log' => [
 //        'eloquent.saved: *',
         'eloquent.created: *',
@@ -30,17 +28,9 @@ return [
                 'port' => 9200,
                 'scheme' => 'http',
             ],
-            //[
-            //  'host' => 'foo.com',
-            //  'port' => '9200',
-            //  'scheme' => 'https',
-            //  'path' => '/elastic',
-            //  'user' => 'username',
-            //  'pass' => 'password!#$?*abc'
-            //]
         ],
         'index' => [
-            'name' => '',
+            'name' => 'application_log_' . date('d-m-Y'),
             'pipeline' => '',
             'template' => '',
             'policy' => '',

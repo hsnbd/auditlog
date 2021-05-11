@@ -28,6 +28,7 @@ class ESMessagePush implements ShouldQueue
      *
      * @param object $event
      * @return void
+     * @throws \Exception
      */
     public function handle($event)
     {
@@ -35,8 +36,6 @@ class ESMessagePush implements ShouldQueue
             $indexName = config('audit-logger.es.index.name');
             $ingestPipeline = config('audit-logger.es.index.pipeline');
 
-//            Log::debug(config('audit-logger.es'));
-//            Log::debug($indexName);
             if (empty($indexName)) {
                 throw new \Exception('Index name should not be empty. Please add index name in audit-logger config file.');
             }
@@ -55,6 +54,7 @@ class ESMessagePush implements ShouldQueue
         } catch (\Throwable $exception) {
             Log::debug($exception->getMessage());
             Log::debug($exception->getTraceAsString());
+            throw new \Exception('Unable to process es queue.');
         }
     }
 }
