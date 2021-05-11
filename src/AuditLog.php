@@ -2,11 +2,8 @@
 
 namespace Hsnbd\AuditLogger;
 
-use Hsnbd\AuditLogger\Classes\AuditLogManager;
 use Hsnbd\AuditLogger\Events\ESMessagePushed;
-use Hsnbd\AuditLogger\Interfaces\IAuditLogProcessor;
-use Hsnbd\AuditLogger\Classes\AuditLogProcessor;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AuditLog
@@ -15,73 +12,73 @@ use Illuminate\Database\Eloquent\Model;
 class AuditLog
 {
     //php artisan queue:work database --queue=listeners
-    public function __construct()
-    {
 
+    /**
+     * @param string|null $message
+     * @param array|null $data
+     * @param array $logMeta
+     * @param array $userMeta
+     * @param array $applicationMeta
+     * @return string|null
+     */
+    public function debug(?string $message = '', ?array $data = [], ?array $logMeta = [], ?array $userMeta = [], ?array $applicationMeta = []): ?string
+    {
+        return $this->log(__FUNCTION__, $message, $data, $logMeta, $userMeta, $applicationMeta);
     }
 
     /**
      * @param string|null $message
-     * @param IAuditLogProcessor|null $auditLogProcessor
+     * @param array|null $data
+     * @param array $logMeta
+     * @param array $userMeta
+     * @param array $applicationMeta
      * @return string|null
-     * @throws \Exception
      */
-    public function debug(?string $message, ?IAuditLogProcessor $auditLogProcessor = null): ?string
+    public function info(?string $message = '', ?array $data = [], ?array $logMeta = [], ?array $userMeta = [], ?array $applicationMeta = []): ?string
     {
-        return $this->log($message, __FUNCTION__, $auditLogProcessor);
+        return $this->log(__FUNCTION__, $message, $data, $logMeta, $userMeta, $applicationMeta);
     }
 
     /**
+     * @param string|null $alertType
      * @param string|null $message
-     * @param IAuditLogProcessor|null $auditLogProcessor
+     * @param array|null $data
+     * @param array|null $logMeta
+     * @param array|null $userMeta
+     * @param array|null $applicationMeta
      * @return string|null
-     * @throws \Exception
      */
-    public function info(?string $message, ?IAuditLogProcessor $auditLogProcessor = null): ?string
+    private function log(string $alertType, ?string $message, ?array $data, ?array $logMeta, ?array $userMeta, ?array $applicationMeta): ?string
     {
-        return $this->log($message, __FUNCTION__, $auditLogProcessor);
-    }
-
-    /**
-     * @param string|null $message
-     * @param string $alertType
-     * @param IAuditLogProcessor|null $auditLogProcessor
-     * @return string|null
-     * @throws \Exception
-     */
-    private function log(?string $message, string $alertType, ?IAuditLogProcessor $auditLogProcessor = null): ?string
-    {
-        if (is_null($auditLogProcessor)) {
-            $auditLogProcessor = new AuditLogProcessor();
+        if (empty($message)) {
+            $message = '';
         }
-        if (is_null($auditLogProcessor->alertType)) {
-            $auditLogProcessor->alertType = $alertType;
+        if (empty($data)) {
+            $data = [];
         }
-        if (is_null($auditLogProcessor->message)) {
-            $auditLogProcessor->message = $message;
+        if (empty($logMeta)) {
+            $logMeta = [];
+        }
+        if (empty($userMeta)) {
+            $userMeta = [];
+        }
+        if (empty($applicationMeta)) {
+            $applicationMeta = [];
         }
 
-        $log = $auditLogProcessor->processAuditLog();
+        $log = [
+            'application_meta' => $this->getApplicationMeta($applicationMeta),
+            'log_meta' => $this->getLogMeta($logMeta, $alertType),
+            'log_data' => $data,
+            'user_meta' => $this->getUserMeta($userMeta),
+            'client_ip' => request()->ip(),
+            'browser' => request()->userAgent(),
+            'message' => $message,
+        ];
 
         $this->pushLog($log);
 
         return !empty($log['message']) ? $log['message'] : '';
-    }
-
-    /**
-     * @param string|null $actionType
-     * @return string
-     */
-    public function parseModelEventName(?string $actionType): string
-    {
-        $modelEvent = 'affected';
-
-        if (!is_null($actionType)) {
-            preg_match('/eloquent\.([\w]+):/', ($actionType ?? ''), $matches);
-            $modelEvent = !empty($matches[1]) ? $matches[1] : $modelEvent;
-        }
-
-        return $modelEvent;
     }
 
     /**
@@ -90,5 +87,46 @@ class AuditLog
     private function pushLog(array $data)
     {
         event(new ESMessagePushed($data));
+    }
+
+    private function getApplicationMeta(array $applicationMeta): array
+    {
+        $meta = $applicationMeta;
+        if (empty($meta['application_name'])) {
+            $meta['application_name'] = env('APP_NAME');
+        }
+
+        if (empty($meta['server_ip'])) {
+            $meta['server_ip'] = request()->server('SERVER_ADDR');
+        }
+
+        return $meta;
+    }
+
+    private function getLogMeta(array $logMeta, string $alertType): array
+    {
+        $meta = $logMeta;
+        if (empty($meta['log_type'])) {
+            $meta['log_type'] = $alertType;
+        }
+
+        if (empty($meta['log_url'])) {
+            $meta['log_url'] = request()->url();
+        }
+
+        return $meta;
+    }
+
+
+    private function getUserMeta(array $userMeta)
+    {
+        $meta = [];
+        if (count($userMeta)) {
+            $meta = $userMeta;
+        } elseif (Auth::check()) {
+            $meta = Auth::user();
+        }
+
+        return $meta;
     }
 }
